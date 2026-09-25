@@ -588,22 +588,20 @@
                     phrases = splitIntoPhrases(text);
                 }
                 
-                for (let i = 0; i < phrases.length; i++) {
-                    const phrase = phrases[i];
-                    // Convert phrase into spoken pronunciation guide
-                    const spokenPhrase = getSpeechText(phrase);
-                    
-                    for (let j = 0; j < 3; j++) {
+                const TOTAL_REPEATS = 3;
+                for (let rep = 0; rep < TOTAL_REPEATS; rep++) {
+                    for (let i = 0; i < phrases.length; i++) {
                         if (currentSpeakId !== speakId) return;
+                        
+                        const phrase = phrases[i];
+                        const spokenPhrase = getSpeechText(phrase);
                         
                         await speakPhraseAsync(spokenPhrase);
                         
                         if (currentSpeakId !== speakId) return;
                         
-                        const isLastPhrase = i === phrases.length - 1;
-                        const isLastRepeat = j === 2;
-                        if (!(isLastPhrase && isLastRepeat)) {
-                            // Dynamically calculate pause time based on the original phrase length
+                        const isLastPhraseOfLastRep = (rep === TOTAL_REPEATS - 1) && (i === phrases.length - 1);
+                        if (!isLastPhraseOfLastRep) {
                             const pauseTime = Math.max(
                                 DICTATION_MIN_PAUSE_MS, 
                                 DICTATION_PAUSE_BASE_MS + phrase.length * DICTATION_PAUSE_PER_CHAR_MS
