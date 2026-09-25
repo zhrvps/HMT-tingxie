@@ -524,6 +524,9 @@
                 { pattern: /还(要|是|有|真|玩|留|给|能|会|好|算|想|在|未|没)/g, replacement: "孩$1" },
                 // "得" as structural particle "de" after verbs/adjectives
                 { pattern: /([跑走吃写读看听洗做打玩摔绑记说拿冷热痛快慢高矮胖瘦多小好坏脏累气])得/g, replacement: "$1的" },
+                // "地" as structural particle "de" before verbs or after adverbs
+                { pattern: /(狼吞虎咽|目不转睛|苦口婆心|异口同声|轻轻|狠狠|呆呆|迫不及待|绝望|依依不舍|兴高采烈|满意|高兴|伤心|难过|迅速|渐渐|慢慢|深深|默默|偷偷|急忙|匆忙|静静|紧紧|大声|小声|疯狂|不断|不停|重新)地/g, replacement: "$1的" },
+                { pattern: /地(吃|盯|劝|说|吐|瞪|站|跑|走|看|听|写|画|笑|哭|飞|冲|推|叫|喊|问|答|拿|抓|找|作|做|玩|选|过|到|离|起)/g, replacement: "的$1" },
                 // "觉得" as "jué de"
                 { pattern: /觉得/g, replacement: "觉的" },
                 // "似的" as "shì de"
