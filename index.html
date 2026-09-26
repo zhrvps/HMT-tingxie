@@ -468,9 +468,41 @@
 
         function splitIntoPhrases(text) {
             if (!text) return [];
-            return text.split(/[，。！？；,\.!\?;\n]+/)
+            
+            // First split by punctuation
+            const clauses = text.split(/[，。！？；,\.!\?;\n]+/)
                 .map(p => p.trim())
                 .filter(p => p.length > 0);
+                
+            // Use native Intl.Segmenter for intelligent sub-phrase splitting if clause length exceeds 7 chars
+            if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+                const result = [];
+                
+                for (const clause of clauses) {
+                    if (clause.length <= 7) {
+                        result.push(clause);
+                    } else {
+                        const segments = Array.from(segmenter.segment(clause)).map(s => s.segment);
+                        let currentChunk = "";
+                        
+                        for (const seg of segments) {
+                            if (currentChunk.length > 0 && (currentChunk.length + seg.length) > 7) {
+                                result.push(currentChunk);
+                                currentChunk = seg;
+                            } else {
+                                currentChunk += seg;
+                            }
+                        }
+                        if (currentChunk.length > 0) {
+                            result.push(currentChunk);
+                        }
+                    }
+                }
+                return result;
+            }
+            
+            return clauses;
         }
 
         function speakPhraseAsync(phrase) {
