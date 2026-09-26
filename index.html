@@ -684,8 +684,9 @@
         function speakRecitationHint() {
             const word = state.sessionWords[state.currentWordIndex];
             if (!word) return;
-            // Read only the first 3 characters as a hint
-            const hint = word.word.substring(0, 3);
+            // Get the first natural phrase of the recitation sentence as the hint
+            const phrases = splitIntoPhrases(word.word);
+            const hint = phrases.length > 0 ? phrases[0] : word.word.substring(0, 6);
             speak(hint + "...", true);
         }
 
