@@ -474,35 +474,35 @@
                 .map(p => p.trim())
                 .filter(p => p.length > 0);
                 
-            // Use native Intl.Segmenter for intelligent sub-phrase splitting if clause length exceeds 7 chars
-            if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-                const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
-                const result = [];
-                
-                for (const clause of clauses) {
-                    if (clause.length <= 7) {
-                        result.push(clause);
-                    } else {
-                        const segments = Array.from(segmenter.segment(clause)).map(s => s.segment);
-                        let currentChunk = "";
+            const result = [];
+            
+            for (const clause of clauses) {
+                // Keep clauses up to 12 characters whole to prevent awkward mid-phrase breaks
+                if (clause.length <= 12 || typeof Intl === 'undefined' || !Intl.Segmenter) {
+                    result.push(clause);
+                } else {
+                    // Only for unusually long clauses (> 12 chars), split into balanced ~8-10 char sub-phrases
+                    const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+                    const segments = Array.from(segmenter.segment(clause)).map(s => s.segment);
+                    
+                    let currentChunk = "";
+                    for (let i = 0; i < segments.length; i++) {
+                        const seg = segments[i];
+                        const remainingChars = clause.length - (result.join('').length + currentChunk.length);
                         
-                        for (const seg of segments) {
-                            if (currentChunk.length > 0 && (currentChunk.length + seg.length) > 7) {
-                                result.push(currentChunk);
-                                currentChunk = seg;
-                            } else {
-                                currentChunk += seg;
-                            }
-                        }
-                        if (currentChunk.length > 0) {
+                        if (currentChunk.length >= 6 && (currentChunk.length + seg.length) > 9 && remainingChars >= 3) {
                             result.push(currentChunk);
+                            currentChunk = seg;
+                        } else {
+                            currentChunk += seg;
                         }
                     }
+                    if (currentChunk.length > 0) {
+                        result.push(currentChunk);
+                    }
                 }
-                return result;
             }
-            
-            return clauses;
+            return result;
         }
 
         function speakPhraseAsync(phrase) {
